@@ -14,10 +14,12 @@ class on_command(commands.Cog):
     async def on_command_completion(self, ctx: commands.Context):
         try:
             embed = discord.Embed(
-                title=f"Command Executed",
-                description=f"**Command:** `?{ctx.command.name}`\n**User:** {ctx.author.mention} (`{ctx.author.id}`)\n**Channel:** {ctx.channel.mention}",
+                title="Command Executed",
                 color=0x2f3136
             )
+            embed.add_field(name="Command", value=f"`?{ctx.command.name}`", inline=False)
+            embed.add_field(name="User", value=f"{ctx.author.mention} (`{ctx.author.id}`)", inline=False)
+            embed.add_field(name="Channel", value=f"{ctx.channel.mention}", inline=False)
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
             await self.bot.log.send(guild=ctx.guild, type="guild_update", embed=embed)
         except Exception as e:

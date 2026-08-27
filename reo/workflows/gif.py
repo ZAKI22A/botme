@@ -1,7 +1,7 @@
 import requests
 import random
 
-TENOR_API_KEY = "S1Oe592nbQvO5yJo4FZbbK9NZE0EvYCc"
+TENOR_API_KEY = "kVejrDZRfCoSpTBDgv1LMr7VpM2zVqCS"
 TENOR_BASE_URL = "https://tenor.googleapis.com/v2/search"
 
 def get_gif(name: str, limit: int = 20):
