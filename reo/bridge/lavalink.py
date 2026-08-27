@@ -17,7 +17,9 @@ async def on_node(bot):
     running = True
     
     nodes = [
-        wavelink.Node(uri="https://lava-v4.ajieblogs.eu.org:443/", password="https://dsc.gg/ajidevserver", retries=1)
+        wavelink.Node(uri="https://lavalink.serenetia.com:443/", password="https://dsc.gg/ajidevserver", retries=1),
+        wavelink.Node(uri="https://lavalinkv4.serenetia.com:443/", password="https://dsc.gg/ajidevserver", retries=1),
+        wavelink.Node(uri="https://lavalinkv3.serenetia.com:443/", password="https://dsc.gg/ajidevserver", retries=1)
     ]
     await wavelink.Pool.connect(
         nodes=nodes,
