@@ -887,11 +887,3 @@ class Fun(commands.Cog):
                 await msg.add_reaction(emojis[i])
         except Exception as e:
             logger.error(f"Error in poll command: {e}")
-
-                file = None
-
-            await ctx.send(embed=embed, file=file)
-
-        except Exception as e:
-
-            logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
