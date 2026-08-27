@@ -131,12 +131,17 @@ class HomeView(BaseHelpView):
     def __init__(self, bot, ctx, all_app_commands, reported=False):
         super().__init__(bot, ctx, all_app_commands, reported)
         container = ui.Container()
+        # Anime banner on top
+        try:
+            container.add_item(ui.MediaGallery(discord.MediaGalleryItem(media=discord.UnfurledMediaItem(url="https://media.tenor.com/2UYENRica1gAAAAC/anime-banner.gif"))))
+            container.add_item(ui.Separator(spacing=discord.SeparatorSpacing.small))
+        except: pass
         container.add_item(
             ui.TextDisplay(
                 f"# {self.bot.user.display_name}\n-# {self.tr('Help menu', 'Help menu')}"
             )
         )
-        container.add_item(ui.Separator(spacing=discord.SeparatorSpacing.large))
+        container.add_item(ui.Separator(spacing=discord.SeparatorSpacing.small))
         prefix = self.bot.cache.guilds.get(str(self.ctx.guild.id), {}).get(
             "prefix", self.bot.BotConfig.PREFIX
         )
