@@ -1,4 +1,4 @@
-SUPPORT_SERVER = "https://example.com/reo/support"
+SUPPORT_SERVER = "https://discord.gg/8PWewGgqh"
 WEBSITE = "https://example.com/reo"
 PRIVACY_POLICY = "https://example.com/reo/privacy"
 TERMS_OF_SERVICE = "https://example.com/reo/terms"

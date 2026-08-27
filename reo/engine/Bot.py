@@ -42,10 +42,9 @@ class Log:
         if not guilds_log_cache or not guilds_log_cache.get('enabled'):
             return
         
-        if type not in self.log_error_type:
-            return
-        
         channel_id = guilds_log_cache.get(type)
+        if not channel_id:
+            channel_id = guilds_log_cache.get('log_channel_id')
         if not channel_id:
             return
         

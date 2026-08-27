@@ -5103,3 +5103,89 @@ class Utils(commands.Cog):
             await ctx.send(
                 "An error occurred while processing the command.", delete_after=5
             )
+
+    @commands.command(
+        name="remind", help="Set a reminder (e.g., ?remind 30m Buy groceries)", aliases=["remindme", "reminder"]
+    )
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3, per=60, type=commands.BucketType.user)
+    async def remind(self, ctx: commands.Context, time_str: str = None, *, reminder: str = None):
+        try:
+            if not time_str or not reminder:
+                await ctx.send(embed=discord.Embed(
+                    description="Usage: `?remind <time> <message>`\nExamples: `?remind 30m Buy groceries`\n`?remind 2h Meeting`\n`?remind 1d Call mom`\n\nFormats: `s` (seconds), `m` (minutes), `h` (hours), `d` (days)",
+                    color=color.red
+                ), delete_after=15)
+                return
+
+            time_str = time_str.lower()
+            seconds = 0
+            if "s" in time_str:
+                seconds = int(time_str.replace("s", ""))
+            elif "m" in time_str:
+                seconds = int(time_str.replace("m", "")) * 60
+            elif "h" in time_str:
+                seconds = int(time_str.replace("h", "")) * 3600
+            elif "d" in time_str:
+                seconds = int(time_str.replace("d", "")) * 86400
+            else:
+                seconds = int(time_str) * 60
+
+            if seconds < 10:
+                await ctx.send(embed=discord.Embed(description="Minimum reminder time is 10 seconds!", color=color.red), delete_after=10)
+                return
+
+            if seconds > 604800:
+                await ctx.send(embed=discord.Embed(description="Maximum reminder time is 7 days!", color=color.red), delete_after=10)
+                return
+
+            embed = discord.Embed(
+                description=f"{self.bot.emoji.SUCCESS} Reminder set for **{time_str}**\nMessage: {reminder}",
+                color=color.green
+            )
+            embed.set_footer(text=f"Set by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+
+            await asyncio.sleep(seconds)
+
+            remind_embed = discord.Embed(
+                title="Reminder!",
+                description=f"{ctx.author.mention}\n**{reminder}**",
+                color=color.random_color()
+            )
+            remind_embed.set_footer(text=f"Reminder from {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=remind_embed)
+        except ValueError:
+            await ctx.send(embed=discord.Embed(description="Invalid time format! Use numbers like `30m`, `2h`, `1d`", color=color.red), delete_after=10)
+        except Exception as e:
+            logger.error(f"Error in remind command: {e}")
+
+    @commands.command(
+        name="calc", help="Calculate a math expression", aliases=["calculator", "math"]
+    )
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=5, per=15, type=commands.BucketType.user)
+    async def calc(self, ctx: commands.Context, *, expression: str = None):
+        try:
+            if not expression:
+                await ctx.send(embed=discord.Embed(
+                    description="Usage: `?calc <expression>`\nExample: `?calc 2 + 2 * 3`",
+                    color=color.red
+                ), delete_after=10)
+                return
+
+            allowed_chars = set("0123456789+-*/.() ")
+            if not all(c in allowed_chars for c in expression):
+                await ctx.send(embed=discord.Embed(description="Invalid characters in expression!", color=color.red), delete_after=10)
+                return
+
+            result = eval(expression)
+            embed = discord.Embed(title="Calculator", color=color.random_color())
+            embed.add_field(name="Expression", value=f"`{expression}`", inline=False)
+            embed.add_field(name="Result", value=f"```{result}```", inline=False)
+            embed.set_footer(text=f"Calculated by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(description="Error in calculation! Check your expression.", color=color.red), delete_after=10)

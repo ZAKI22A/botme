@@ -759,7 +759,133 @@ class Fun(commands.Cog):
 
             except Exception as e:
 
-                logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
+            logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
+
+    @commands.command(name="8ball", help="Ask the magic 8-ball a question", aliases=["eightball"])
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3, per=30, type=commands.BucketType.user)
+    async def eightball(self, ctx: commands.Context, *, question: str = None):
+        try:
+            if not question:
+                await ctx.send(embed=discord.Embed(description="You need to ask a question!", color=color.red), delete_after=10)
+                return
+
+            responses = [
+                "It is certain.", "It is decidedly so.", "Without a doubt.",
+                "Yes - definitely.", "You may rely on it.", "As I see it, yes.",
+                "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.",
+                "Reply hazy, try again.", "Ask again later.", "Better not tell you now.",
+                "Cannot predict now.", "Concentrate and ask again.",
+                "Don't count on it.", "My reply is no.", "My sources say no.",
+                "Outlook not so good.", "Very doubtful."
+            ]
+
+            embed = discord.Embed(title="Magic 8-Ball", color=color.random_color())
+            embed.add_field(name="Question", value=question, inline=False)
+            embed.add_field(name="Answer", value=random.choice(responses), inline=False)
+            embed.set_footer(text=f"Asked by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error in 8ball command: {e}")
+
+    @commands.command(name="choose", help="Choose between multiple options (separated by |)")
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3, per=30, type=commands.BucketType.user)
+    async def choose(self, ctx: commands.Context, *, options: str = None):
+        try:
+            if not options:
+                await ctx.send(embed=discord.Embed(description="You need to provide options separated by `|`\nExample: `?choose pizza | burger | pasta`", color=color.red), delete_after=10)
+                return
+
+            choices = [c.strip() for c in options.split("|") if c.strip()]
+            if len(choices) < 2:
+                await ctx.send(embed=discord.Embed(description="You need at least 2 options!", color=color.red), delete_after=10)
+                return
+
+            embed = discord.Embed(title="I Choose...", description=f"**{random.choice(choices)}**", color=color.random_color())
+            embed.set_footer(text=f"Asked by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error in choose command: {e}")
+
+    @commands.command(name="roll", help="Roll a dice", aliases=["dice"])
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3, per=15, type=commands.BucketType.user)
+    async def roll(self, ctx: commands.Context, sides: int = 6):
+        try:
+            if sides < 2:
+                sides = 2
+            elif sides > 100:
+                sides = 100
+
+            result = random.randint(1, sides)
+            embed = discord.Embed(title="Dice Roll", description=f"You rolled a **{result}** (1-{sides})", color=color.random_color())
+            embed.set_footer(text=f"Rolled by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error in roll command: {e}")
+
+    @commands.command(name="meme", help="Get a random meme")
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3, per=30, type=commands.BucketType.user)
+    async def meme(self, ctx: commands.Context):
+        try:
+            image_url = gif.get_gif("funny meme")
+            if not image_url:
+                await ctx.send(embed=discord.Embed(description="Could not fetch a meme right now.", color=color.red), delete_after=10)
+                return
+
+            embed = discord.Embed(title="Random Meme", color=color.random_color())
+            embed.set_image(url=image_url)
+            embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error in meme command: {e}")
+
+    @commands.command(name="poll", help="Create a poll (options separated by |)", aliases=["anket"])
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=2, per=60, type=commands.BucketType.user)
+    async def poll(self, ctx: commands.Context, question: str = None, *, options: str = None):
+        try:
+            if not question:
+                await ctx.send(embed=discord.Embed(description="Usage: `?poll <question> | <option1> | <option2>`\nExample: `?poll What to eat? | Pizza | Burger | Pasta`", color=color.red), delete_after=15)
+                return
+
+            if not options:
+                embed = discord.Embed(title=f"Poll: {question}", color=color.random_color())
+                embed.set_footer(text=f"Poll by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+                msg = await ctx.send(embed=embed)
+                await msg.add_reaction("👍")
+                await msg.add_reaction("👎")
+                return
+
+            choices = [c.strip() for c in options.split("|") if c.strip()]
+            if len(choices) < 2:
+                await ctx.send(embed=discord.Embed(description="You need at least 2 options!", color=color.red), delete_after=10)
+                return
+
+            if len(choices) > 9:
+                await ctx.send(embed=discord.Embed(description="Maximum 9 options allowed!", color=color.red), delete_after=10)
+                return
+
+            emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+            description = ""
+            for i, choice in enumerate(choices):
+                description += f"{emojis[i]} {choice}\n"
+
+            embed = discord.Embed(title=f"Poll: {question}", description=description, color=color.random_color())
+            embed.set_footer(text=f"Poll by {ctx.author.name}", icon_url=ctx.author.display_avatar.url)
+            msg = await ctx.send(embed=embed)
+
+            for i in range(len(choices)):
+                await msg.add_reaction(emojis[i])
+        except Exception as e:
+            logger.error(f"Error in poll command: {e}")
 
                 file = None
 

@@ -1257,20 +1257,20 @@ class Moderation(commands.Cog):
 
     @commands.command(
         name="mute",
-        help="Mute a member in the server",
-        aliases=["timeout"]
+        help="Mute a member in the server (server mute)",
+        aliases=[]
     )
     @checks.ignore_check()
     @checks.blacklist_check()
     @commands.cooldown(rate=5,per=60,type=commands.BucketType.user)
     # mute @member 2h[optional] reason[optional]
-    async def mute_command(self,ctx:commands.Context,member:discord.Member,time:str,*,reason:str='No reason provided'):
+    async def mute_command(self,ctx:commands.Context,member:discord.Member,*,reason:str='No reason provided'):
         try:
-            if not await checks.check_is_moderator_permissions(ctx, 'moderate_members'):
+            if not await checks.check_is_moderator_permissions(ctx, 'mute_members'):
                 return
             
             # check if the bot has the required permissions
-            if not ctx.guild.me.guild_permissions.moderate_members:
+            if not ctx.guild.me.guild_permissions.mute_members:
                 await ctx.send(embed=discord.Embed(description="I don't have the required permissions to mute members",color=color.red),delete_after=10)
                 return
 
@@ -1298,23 +1298,17 @@ class Moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(description=f"You can't mute the owner of the server",color=color.red),delete_after=10)
                 return
             
-            if member.is_timed_out():
+            if not member.voice:
+                await ctx.send(embed=discord.Embed(description=f"{member.mention} is not in a voice channel",color=color.red),delete_after=10)
+                return
+            
+            if member.voice.mute:
                 await ctx.send(embed=discord.Embed(description=f"{member.mention} is already muted",color=color.red),delete_after=10)
                 return
             
-            # convert time from 1s, 1m, 1h, 1d to seconds
-            
             try:
-                time = time.lower()
-                if time:
-                    time = time.replace('s','').replace('m','*60').replace('h','*60*60').replace('d','*60*60*24')
-                    time = eval(time)
-            except Exception as e:
-                time = None
-                
-            try:
-                await member.timeout(datetime.timedelta(seconds=time),reason=reason)
-                await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been muted",color=color.green))
+                await member.edit(mute=True,reason=reason)
+                await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been server muted",color=color.green))
             except Exception as e:
                 logger.error(f"Error in mute command: {e}")
                 await ctx.send("An error occurred while processing the command.",delete_after=5)
@@ -1333,19 +1327,20 @@ class Moderation(commands.Cog):
     # unmute @member reason[optional]
     async def unmute_command(self,ctx:commands.Context,member:discord.Member,*,reason:str='No reason provided'):
         try:
-            if not await checks.check_is_moderator_permissions(ctx, 'moderate_members'):
+            if not await checks.check_is_moderator_permissions(ctx, 'mute_members'):
                 return
             
             # check if the bot has the required permissions
-            if not ctx.guild.me.guild_permissions.moderate_members:
+            if not ctx.guild.me.guild_permissions.mute_members:
                 await ctx.send(embed=discord.Embed(description="I don't have the required permissions to unmute members",color=color.red),delete_after=10)
                 return
 
-            if member.is_timed_out():
-                await member.timeout(None,reason=reason)
-                await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been unmuted",color=color.green))
-            else:
+            if not member.voice or not member.voice.mute:
                 await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.ERROR} {member.mention} is not muted",color=color.red),delete_after=10)
+                return
+
+            await member.edit(mute=False,reason=reason)
+            await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been unmuted",color=color.green))
         except Exception as e:
             logger.error(f"Error in unmute command: {e}")
             await ctx.send("An error occurred while processing the command.",delete_after=5)
@@ -1359,23 +1354,23 @@ class Moderation(commands.Cog):
     @commands.cooldown(rate=1,per=120,type=commands.BucketType.guild)
     async def unmute_all_command(self,ctx:commands.Context,*,reason:str='No reason provided'):
         try:
-            if not await checks.check_is_moderator_permissions(ctx, 'moderate_members'):
+            if not await checks.check_is_moderator_permissions(ctx, 'mute_members'):
                 return
             
             # check if the bot has the required permissions
-            if not ctx.guild.me.guild_permissions.moderate_members:
+            if not ctx.guild.me.guild_permissions.mute_members:
                 await ctx.send(embed=discord.Embed(description="I don't have the required permissions to unmute members",color=color.red),delete_after=10)
                 return
 
-            muted_members = [member for member in ctx.guild.members if member.is_timed_out()]
+            muted_members = [member for member in ctx.guild.members if member.voice and member.voice.mute]
             count = 0
             for member in muted_members:
                 try:
-                    await member.timeout(None,reason=reason)
+                    await member.edit(mute=False,reason=reason)
                     count += 1
                 except Exception as e:
                     pass
-            await ctx.send(embed=discord.Embed(description=f"Unmuted {len(count)} members out of {len(muted_members)} muted members",color=color.green))
+            await ctx.send(embed=discord.Embed(description=f"Unmuted {count} members out of {len(muted_members)} muted members",color=color.green))
         except Exception as e:
             logger.error(f"Error in unmute all command: {e}")
             await ctx.send("An error occurred while processing the command.",delete_after=5)
@@ -1549,6 +1544,37 @@ class Moderation(commands.Cog):
             await ctx.send(embed=discord.Embed(description=f"{member.mention}'s nickname has been changed to {nickname}",color=color.green))
         except Exception as e:
             logger.error(f"Error in nickname command: {e}")
+            await ctx.send("An error occurred while processing the command.",delete_after=5)
+
+    @commands.command(
+        name="setlog",
+        help="Set the log channel for all server logs",
+        aliases=["logchannel"]
+    )
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    @commands.cooldown(rate=3,per=30,type=commands.BucketType.user)
+    async def setlog_command(self,ctx:commands.Context,channel:discord.TextChannel=None):
+        try:
+            if not await checks.check_is_moderator_permissions(ctx, 'administrator'):
+                return
+
+            if not channel:
+                channel = ctx.channel
+
+            guilds_log_cache = cache.guilds_log.get(str(ctx.guild.id))
+            if not guilds_log_cache:
+                await storage.guilds_log.insert(guild_id=ctx.guild.id, enabled=True, log_channel_id=channel.id)
+            else:
+                await storage.guilds_log.update(id=guilds_log_cache.get('id'), guild_id=ctx.guild.id, log_channel_id=channel.id)
+
+            embed = discord.Embed(
+                description=f"{self.bot.emoji.SUCCESS} Log channel has been set to {channel.mention}\nAll logs will be sent to this channel.",
+                color=color.green
+            )
+            await ctx.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error in setlog command: {e}")
             await ctx.send("An error occurred while processing the command.",delete_after=5)
         
 
