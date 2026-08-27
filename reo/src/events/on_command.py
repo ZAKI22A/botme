@@ -11,20 +11,14 @@ class on_command(commands.Cog):
         self.bot:commands.Bot = bot
 
     @commands.Cog.listener()
-    async def on_command(self,ctx:commands.Context):
+    async def on_command_completion(self, ctx: commands.Context):
         try:
-            # await ctx.command.callback(ctx)
-            pass
-        except discord.HTTPException as e:
-            if e.code == 429:
-                logger.error(f"Traceback: {traceback.format_exc()}")
-                logger.warning(f"Rate limit hit for command: {ctx.command}")
-            else:
-                logger.error(f"Error executing command: {ctx.command}")
-                raise e
-        except discord.Forbidden as e:
-            logger.error(f"Bot does not have permissions to execute command: {ctx.command}")
-            raise e
-        except discord.NotFound as e:
-            logger.error(f"Message not found for command: {ctx.command}")
-            raise e
+            embed = discord.Embed(
+                title=f"Command Executed",
+                description=f"**Command:** `?{ctx.command.name}`\n**User:** {ctx.author.mention} (`{ctx.author.id}`)\n**Channel:** {ctx.channel.mention}",
+                color=0x2f3136
+            )
+            embed.set_thumbnail(url=ctx.author.display_avatar.url)
+            await self.bot.log.send(guild=ctx.guild, type="guild_update", embed=embed)
+        except Exception as e:
+            logger.error(f"Error in on_command_completion logging: {e}")
