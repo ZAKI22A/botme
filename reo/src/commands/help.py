@@ -133,7 +133,7 @@ class HomeView(BaseHelpView):
         container = ui.Container()
         # Anime banner on top
         try:
-            container.add_item(ui.MediaGallery(discord.MediaGalleryItem(media=discord.UnfurledMediaItem(url="https://cdn.discordapp.com/attachments/1286969360224882688/1287446868623888497/bully-surprise.gif"))))
+            container.add_item(ui.MediaGallery(discord.MediaGalleryItem(media=discord.UnfurledMediaItem(url="https://media.tenor.com/2UYENRica1gAAAAC/anime-fight.gif"))))
             container.add_item(ui.Separator(spacing=discord.SeparatorSpacing.small))
         except: pass
         container.add_item(

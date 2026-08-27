@@ -1,78 +1,28 @@
 import discord
-
-
 from discord.ext import commands
-
-
 import psutil
-
-
 import asyncio
-
-
 import io
-
-
 import platform
-
-
 import datetime
-
-
 import time
-
-
 from reo.src.checks import checks
-
-
 from reo.memory.cache import cache
-
-
 import traceback, sys
-
-
 import re
-
-
 import storage.afk
-
-
 import storage.guilds
-
-
 import storage.users
-
-
 from reo.console.logging import logger
-
-
 from reo.style import color
-
-
 from reo.workflows import ui
-
-
 from reo.utils import pings
-
-
 import requests
-
-
 from reo.config.config import BotConfigClass
-
-
 BotConfig = BotConfigClass()
-
-
 import storage
-
-
 from reo.workflows.afk_delay import afk_delay
-
-
 from reo.engine.Bot import AutoShardedBot
-
-
 class Utils(commands.Cog):
 
     def __init__(self, bot):
@@ -2052,26 +2002,8 @@ class Utils(commands.Cog):
             embed = discord.Embed(
                 title=f"{user.display_name}'s Profile",
                 description=f"""**{self.bot.emoji.RELATIONSHIP} Relationship:** `{self.bot.cache.users.get(str(user.id),{}).get('relationship','single').capitalize()}`
-
-
-
-
-
-
 **{self.bot.emoji.CREATED} Created:** <t:{int(user.created_at.timestamp())}:d> <t:{int(user.created_at.timestamp())}:R>
-
-
-
-
-
-
 **{self.bot.emoji.JOIN} Joined:** <t:{int(user.joined_at.timestamp())}:d> <t:{int(user.joined_at.timestamp())}:R>
-
-
-
-
-
-
 """,
                 color=user.accent_color,
             )
@@ -4191,89 +4123,17 @@ class Utils(commands.Cog):
                     "embed": discord.Embed(
                         title=f"{self.bot.emoji.INFO} About Server",
                         description=f"""**Server Name:** {ctx.guild.name}
-
-
-
-
-
-
 **Server ID:** `{ctx.guild.id}`
-
-
-
-
-
-
 **Owner Name:** {ctx.guild.owner}
-
-
-
-
-
-
 **Owner ID:** `{ctx.guild.owner.id}`
-
-
-
-
-
-
 **Owner Mention:** {ctx.guild.owner.mention}
-
-
-
-
-
-
 **Created:** <t:{int(ctx.guild.created_at.timestamp())}:d> <t:{int(ctx.guild.created_at.timestamp())}:R>
-
-
-
-
-
-
 **Members Count:** `{len(ctx.guild.members)} Humans, {len([member for member in ctx.guild.members if member.bot])} Bots`
-
-
-
-
-
-
 **Bans Count:** `{ban_count}`
-
-
-
-
-
-
 **Preferred Locale:** `{ctx.guild.preferred_locale}`
-
-
-
-
-
-
 **Upload Limit:** `{round(ctx.guild.filesize_limit/1024/1024,1)} MB`
-
-
-
-
-
-
 **Vanity invite Code:** `{ctx.guild.vanity_url_code if ctx.guild.vanity_url_code else '`Not Set`'}`
-
-
-
-
-
-
 **Invites Disabled:** `{ctx.guild.explicit_content_filter}`
-
-
-
-
-
-
 **Discovery Splash URL:** {'[Click Here]('+ctx.guild.discovery_splash.url+')' if ctx.guild.discovery_splash else '`Not Set`'}""",
                         color=color.black,
                     ),
@@ -4292,96 +4152,18 @@ class Utils(commands.Cog):
                     "embed": discord.Embed(
                         title=f"{self.bot.emoji.SETTINGS} Server Settings",
                         description=f"""**Widget Enabled:** `{ctx.guild.widget_enabled}`
-
-
-
-
-
-
 **Widget Channel:** {ctx.guild.widget_channel.mention if ctx.guild.widget_channel else '`Not Set`'}
-
-
-
-
-
-
 **Verification Level:** `{ctx.guild.verification_level}`
-
-
-
-
-
-
 **Default Message Notifications:** `{ctx.guild.default_notifications.name.capitalize().replace("_"," ")}`
-
-
-
-
-
-
 **Explicit Media Content Filter:** `{ctx.guild.explicit_content_filter}`
-
-
-
-
-
-
 **Nsfw Level:** `{ctx.guild.nsfw_level.name.capitalize()}`
-
-
-
-
-
-
 **MFA Requirement:** {self.bot.emoji.NO if ctx.guild.mfa_level == 0 else self.bot.emoji.YES}
-
-
-
-
-
-
 **System Welcome Messages:** {self.bot.emoji.YES if ctx.guild.system_channel_flags.join_notifications else self.bot.emoji.NO}
-
-
-
-
-
-
 **Inactive Timeout:** `{ctx.guild.afk_timeout/60} minutes`
-
-
-
-
-
-
 **Inactive Channel:** {ctx.guild.afk_channel.mention if ctx.guild.afk_channel else '`Not Set`'}
-
-
-
-
-
-
 **Safety Alerts Channel:** {ctx.guild.system_channel.mention if ctx.guild.system_channel else '`Not Set`'}
-
-
-
-
-
-
 **Discord Updates Channel:** {ctx.guild.public_updates_channel.mention if ctx.guild.public_updates_channel else '`Not Set`'}
-
-
-
-
-
-
 **System Messages Channel:** {ctx.guild.system_channel.mention if ctx.guild.system_channel else '`Not Set`'}
-
-
-
-
-
-
 **Rules channel:** {ctx.guild.rules_channel.mention if ctx.guild.rules_channel else '`Not Set`'}""",
                         color=color.black,
                     ),
@@ -4400,61 +4182,12 @@ class Utils(commands.Cog):
                     "embed": discord.Embed(
                         title=f"{self.bot.emoji.EMOJI} Emojis & Stickers & Boost",
                         description=f"""**Static Emoji:** `{len([emoji for emoji in ctx.guild.emojis if not emoji.animated])}/{ctx.guild.emoji_limit}`
-
-
-
-
-
-
 **Animated Emoji:** `{len([emoji for emoji in ctx.guild.emojis if emoji.animated])}/{ctx.guild.emoji_limit}`
-
-
-
-
-
-
 **Total Emoji:** `{len(ctx.guild.emojis)}/{ctx.guild.emoji_limit}`
-
-
-
-
-
-
 **Total Stickers:** `{len(ctx.guild.stickers)}/{ctx.guild.sticker_limit}`
-
-
-
-
-
-
-
-
-
-
-
-
-
 **Boost Level:** `{ctx.guild.premium_tier}`
-
-
-
-
-
-
 **Boost Count:** `{ctx.guild.premium_subscription_count}`
-
-
-
-
-
-
 **Booster Role:** {ctx.guild.premium_subscriber_role.mention if ctx.guild.premium_subscriber_role else '`None`'}
-
-
-
-
-
-
 **Boost Bar:** {self.bot.emoji.YES if ctx.guild.premium_subscription_count >= 2 else self.bot.emoji.NO}""",
                         color=color.black,
                     ),
@@ -4473,61 +4206,12 @@ class Utils(commands.Cog):
                     "embed": discord.Embed(
                         title=f"{self.bot.emoji.CATEGORY} Channels & Roles",
                         description=f"""**Total Channels:** {len(ctx.guild.channels)}
-
-
-
-
-
-
 **Text Channels:** {len([channel for channel in ctx.guild.text_channels])} ({len([channel for channel in ctx.guild.text_channels if channel.overwrites_for(ctx.guild.default_role).read_messages])} Locked)
-
-
-
-
-
-
 **Voice Channels:** {len([channel for channel in ctx.guild.voice_channels])} ({len([channel for channel in ctx.guild.voice_channels if channel.overwrites_for(ctx.guild.default_role).connect])} Locked)
-
-
-
-
-
-
 **Stage Channels:** {len([channel for channel in ctx.guild.stage_channels])} ({len([channel for channel in ctx.guild.stage_channels if channel.overwrites_for(ctx.guild.default_role).connect])} Locked)
-
-
-
-
-
-
 **Categories:** {len([channel for channel in ctx.guild.categories])} ({len([channel for channel in ctx.guild.categories if channel.overwrites_for(ctx.guild.default_role).read_messages])} Locked)
-
-
-
-
-
-
-
-
-
-
-
-
-
 **Total Roles:** {len(ctx.guild.roles)}
-
-
-
-
-
-
 **Normal Roles:** {len([role for role in ctx.guild.roles if not role.managed])}
-
-
-
-
-
-
 **Integrated Roles:** {len([role for role in ctx.guild.roles if role.managed])}""",
                         color=color.black,
                     ),
@@ -4712,52 +4396,14 @@ class Utils(commands.Cog):
                     embed=discord.Embed(description="User not found", color=color.red)
                 )
 
+            from reo.workflows.gif import get_gif as _get_gif
+            banner_url = _get_gif("fighting")
             embed = discord.Embed(
-                description=f"""**Name:** {user.mention}
-
-
-
-
-
-
-**Global Name:** {user.global_name}
-
-
-
-
-
-
-**Display Name:** {user.display_name}
-
-
-
-
-
-
-**ID:** `{user.id}`
-
-
-
-
-
-
-**Bot:** {self.bot.emoji.YES if user.bot else self.bot.emoji.NO}
-
-
-
-
-
-
-**Account Created At:** <t:{int(user.created_at.timestamp())}:F>
-
-
-
-
-
-
-""",
+                description=f"**Name:** {user.mention}\n**Global Name:** {user.global_name}\n**Display Name:** {user.display_name}\n**ID:** `{user.id}`\n**Bot:** {self.bot.emoji.YES if user.bot else self.bot.emoji.NO}\n**Account Created At:** <t:{int(user.created_at.timestamp())}:F>",
                 color=user.accent_color if user.accent_color else color.black,
             )
+            if banner_url:
+                embed.set_image(url=banner_url)
 
             try:
 
@@ -4793,26 +4439,7 @@ class Utils(commands.Cog):
                     )
 
                 embed.description += f"""\n**Guild Joined At:** <t:{int(member.joined_at.timestamp())}:F>
-
-
-
-
-
-
 **Status:** `{str(member.status).capitalize()}`
-
-
-
-
-
-
-
-
-
-
-
-
-
 **__Guild Permissions:__** ```\n{guild_permissions_text}```"""
 
             embed.set_thumbnail(url=user.display_avatar.url)
@@ -4860,61 +4487,13 @@ class Utils(commands.Cog):
             embed.add_field(
                 name=f"{self.bot.emoji.GENERAL} __General info__",
                 value=f"""> **{self.bot.emoji.NAME} Name:** {role.mention}
-
-
-
-
-
-
 > {self.bot.emoji.ID} Id: `{role.id}`
-
-
-
-
-
-
 > {self.bot.emoji.POSITION} Position: `{role.position}`
-
-
-
-
-
-
 > {self.bot.emoji.MENTIONABLE} Mentionable: {self.bot.emoji.YES if role.mentionable else self.bot.emoji.NO}
-
-
-
-
-
-
 > {self.bot.emoji.HOIST} Hoist: {self.bot.emoji.YES if role.hoist else self.bot.emoji.NO}
-
-
-
-
-
-
 > {self.bot.emoji.MANAGED} Managed By Bot: {self.bot.emoji.YES if role.managed else self.bot.emoji.NO}
-
-
-
-
-
-
 > {self.bot.emoji.COLOR} Color: `{role.color}`
-
-
-
-
-
-
 > {self.bot.emoji.MEMBERS} Members: `{len(role.members)}`
-
-
-
-
-
-
 > {self.bot.emoji.CREATED} Created At: <t:{int(role.created_at.timestamp())}:F>""",
                 inline=False,
             )
