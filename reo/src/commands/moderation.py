@@ -1515,16 +1515,16 @@ class Moderation(commands.Cog):
             await ctx.send("An error occurred while processing the command.",delete_after=5)
 
     @commands.group(
-        name="setup",
-        help="Setup server features",
+        name="modsetup",
+        help="Setup moderation features",
         invoke_without_command=True
     )
     @checks.ignore_check()
     @checks.blacklist_check()
     async def setup_command(self, ctx: commands.Context):
         embed = discord.Embed(
-            title="Setup Menu",
-            description=f"Use `{self.bot.BotConfig.PREFIX}setup logs` to automatically configure all log channels.",
+            title="Moderation Setup Menu",
+            description=f"Use `{self.bot.BotConfig.PREFIX}modsetup logs` to automatically configure all log channels.",
             color=color.blue
         )
         await ctx.send(embed=embed)
