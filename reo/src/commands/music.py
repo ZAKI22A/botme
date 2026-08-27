@@ -59,50 +59,21 @@ def is_link(text):
 
 
 def convert_ms_to_beautiful_time(ms: int):
+    seconds = ms // 1000
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    weeks, days = divmod(days, 7)
+    months, weeks = divmod(weeks, 4)
 
-    try:
-
-        seconds = ms // 1000
-
-        minutes, seconds = divmod(seconds, 60)
-
-        hours, minutes = divmod(minutes, 60)
-
-        days, hours = divmod(hours, 24)
-
-        weeks, days = divmod(days, 7)
-
-        months, weeks = divmod(weeks, 4)
-
-        time = ""
-
-        if months:
-
-            time += f"{months}M "
-
-        if weeks:
-
-            time += f"{weeks}W "
-
-        if days:
-
-            time += f"{days}D "
-
-        if hours:
-
-            time += f"{hours}h "
-
-        if minutes:
-
-            time += f"{minutes}m "
-
-        if seconds:
-
-            time += f"{seconds}s"
-
-        return time.strip() or "0s"
-
-        return "Unknown"
+    time = ""
+    if months: time += f"{months}M "
+    if weeks: time += f"{weeks}W "
+    if days: time += f"{days}D "
+    if hours: time += f"{hours}h "
+    if minutes: time += f"{minutes}m "
+    if seconds: time += f"{seconds}s"
+    return time.strip() or "0s"
 
 
 class REOMusicControllerView(discord.ui.LayoutView):
