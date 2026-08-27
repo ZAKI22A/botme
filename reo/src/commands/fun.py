@@ -748,17 +748,19 @@ class Fun(commands.Cog):
             )
 
             try:
-
                 image = ui.create_relation_percentage_banner(
                     user1.display_avatar.url, user2.display_avatar.url, percentage
                 )
-
                 file = discord.File(image, filename="relationship.png")
-
                 embed.set_image(url="attachment://relationship.png")
-
             except Exception as e:
                 logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
+                file = None
+
+            await ctx.send(embed=embed, file=file)
+
+        except Exception as e:
+            logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
 
     @commands.command(name="8ball", help="Ask the magic 8-ball a question", aliases=["eightball"])
     @checks.ignore_check()
