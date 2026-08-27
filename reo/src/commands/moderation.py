@@ -1255,66 +1255,34 @@ class Moderation(commands.Cog):
             await ctx.send("An error occurred while processing the command.",delete_after=5)
         self.running_bots_command[ctx.guild.id] = False
 
+    async def unmute_timer(self, member: discord.Member, duration: int):
+        await asyncio.sleep(duration)
+        if member.voice and member.voice.mute:
+            await member.edit(mute=False, reason="Mute duration ended")
+
     @commands.command(
         name="mute",
-        help="Mute a member in the server (server mute)",
+        help="Mute a member in voice (Server Mute)",
         aliases=[]
     )
     @checks.ignore_check()
     @checks.blacklist_check()
     @commands.cooldown(rate=5,per=60,type=commands.BucketType.user)
-    # mute @member 2h[optional] reason[optional]
     async def mute_command(self,ctx:commands.Context,member:discord.Member,*,reason:str='No reason provided'):
         try:
-            if not await checks.check_is_moderator_permissions(ctx, 'mute_members'):
-                return
+            if not await checks.check_is_moderator_permissions(ctx, 'mute_members'): return
+            if not ctx.guild.me.guild_permissions.mute_members: return await ctx.send("I need mute_members permission.")
             
-            # check if the bot has the required permissions
-            if not ctx.guild.me.guild_permissions.mute_members:
-                await ctx.send(embed=discord.Embed(description="I don't have the required permissions to mute members",color=color.red),delete_after=10)
-                return
-
-            if member.guild_permissions.administrator:
-                await ctx.send(embed=discord.Embed(description=f"{member.mention} is an administrator",color=color.red),delete_after=10)
-                return
+            if not member.voice: return await ctx.send("User is not in a voice channel.")
             
-            if member == ctx.author:
-                await ctx.send(embed=discord.Embed(description=f"Dropping a piano on your head...",color=color.red),delete_after=10)
-                return
+            await member.edit(mute=True, reason=reason)
+            await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been server muted for 5 minutes", color=color.green))
             
-            if member == ctx.guild.me:
-                await ctx.send(embed=discord.Embed(description=f"What have I done to you?",color=color.red),delete_after=10)
-                return
+            # بدء المؤقت للـ 5 دقائق (300 ثانية)
+            self.bot.loop.create_task(self.unmute_timer(member, 300))
             
-            if member.top_role >= ctx.author.top_role:
-                await ctx.send(embed=discord.Embed(description=f"You can't mute {member.mention} cause their role is higher than you",color=color.red),delete_after=10)
-                return
-
-            if member.top_role >= ctx.guild.me.top_role:
-                await ctx.send(embed=discord.Embed(description=f"I can't mute {member.mention} cause their role is higher than me",color=color.red),delete_after=10)
-                return
-
-            if await checks.check_is_owner_raw(member,ctx.guild):
-                await ctx.send(embed=discord.Embed(description=f"You can't mute the owner of the server",color=color.red),delete_after=10)
-                return
-            
-            if not member.voice:
-                await ctx.send(embed=discord.Embed(description=f"{member.mention} is not in a voice channel",color=color.red),delete_after=10)
-                return
-            
-            if member.voice.mute:
-                await ctx.send(embed=discord.Embed(description=f"{member.mention} is already muted",color=color.red),delete_after=10)
-                return
-            
-            try:
-                await member.edit(mute=True,reason=reason)
-                await ctx.send(embed=discord.Embed(description=f"{self.bot.emoji.SUCCESS} {member.mention} has been server muted",color=color.green))
-            except Exception as e:
-                logger.error(f"Error in mute command: {e}")
-                await ctx.send("An error occurred while processing the command.",delete_after=5)
         except Exception as e:
-            logger.error(f"Error in mute command: {e}")
-            await ctx.send("An error occurred while processing the command.",delete_after=5)
+            logger.error(f"Error in mute: {e}")
 
     @commands.group(
         name="unmute",

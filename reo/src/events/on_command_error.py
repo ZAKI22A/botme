@@ -23,7 +23,7 @@ class on_command_error(commands.Cog):
             if error.type == commands.BucketType.user:
                 await ctx.reply(f"**{self.bot.emojis.WARNING} - Command On Cooldown. Retry <t:{int(datetime.datetime.now().timestamp() + error.retry_after)}:R>**",delete_after=int(error.retry_after))
             elif (error.type == commands.BucketType.guild):
-                await ctx.reply(f"**{self.bot.emojis.WARNING} - Command On Guild Cooldown. Retry <t:{int(datetime.datetime.now().timestamp() + error.retry_after)}:R>**",delete_after=int(error.retry_after))
+                await ctx.reply(f"**{self.bot.emoji.WARNING} - Command On Guild Cooldown. Retry <t:{int(datetime.datetime.now().timestamp() + error.retry_after)}:R>**",delete_after=int(error.retry_after))
             elif (error.type == commands.BucketType.channel):
                 await ctx.reply(f"**{self.bot.emojis.WARNING} - Command On Channel Cooldown. Retry <t:{int(datetime.datetime.now().timestamp() + error.retry_after)}:R>**",delete_after=int(error.retry_after))
             elif (error.type == commands.BucketType.category):

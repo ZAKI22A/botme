@@ -102,9 +102,11 @@ def convert_ms_to_beautiful_time(ms: int):
 
         return time.strip() or "0s"
 
-    except Exception as e:
-
-        logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
+        except Exception as e:
+            if "404" in str(e):
+                pass
+            else:
+                logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
 
         return "Unknown"
 

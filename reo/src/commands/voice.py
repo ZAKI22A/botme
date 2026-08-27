@@ -303,7 +303,7 @@ class Voice(commands.Cog):
 
             logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
 
-    @commands.hybrid_command(name="vcmove", help="Move a user to a voice channel")
+    @commands.hybrid_command(name="vcmove", aliases=["aji", "move"], help="Move a user to a voice channel")
     @checks.ignore_check()
     @checks.blacklist_check()
     @commands.cooldown(rate=3, per=60, type=commands.BucketType.user)
