@@ -758,8 +758,7 @@ class Fun(commands.Cog):
                 embed.set_image(url="attachment://relationship.png")
 
             except Exception as e:
-
-            logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
+                logger.error(f"Error in file {__file__}: {traceback.format_exc()}")
 
     @commands.command(name="8ball", help="Ask the magic 8-ball a question", aliases=["eightball"])
     @checks.ignore_check()
