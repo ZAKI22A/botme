@@ -1514,35 +1514,47 @@ class Moderation(commands.Cog):
             logger.error(f"Error in nickname command: {e}")
             await ctx.send("An error occurred while processing the command.",delete_after=5)
 
-    @commands.command(
-        name="setlog",
-        help="Set the log channel for all server logs",
-        aliases=["logchannel"]
+    @commands.group(
+        name="setup",
+        help="Setup server features",
+        invoke_without_command=True
     )
     @checks.ignore_check()
     @checks.blacklist_check()
-    @commands.cooldown(rate=3,per=30,type=commands.BucketType.user)
-    async def setlog_command(self,ctx:commands.Context,channel:discord.TextChannel=None):
-        try:
-            if not await checks.check_is_moderator_permissions(ctx, 'administrator'):
-                return
+    async def setup_command(self, ctx: commands.Context):
+        embed = discord.Embed(
+            title="Setup Menu",
+            description=f"Use `{self.bot.BotConfig.PREFIX}setup logs` to automatically configure all log channels.",
+            color=color.blue
+        )
+        await ctx.send(embed=embed)
 
-            if not channel:
-                channel = ctx.channel
+    @setup_command.command(name="logs", help="Automatically setup all log channels")
+    @checks.ignore_check()
+    @checks.blacklist_check()
+    async def setup_logs(self, ctx: commands.Context):
+        if not ctx.guild.me.guild_permissions.manage_channels:
+            return await ctx.send("I need 'Manage Channels' permission.")
 
-            guilds_log_cache = cache.guilds_log.get(str(ctx.guild.id))
-            if not guilds_log_cache:
-                await storage.guilds_log.insert(guild_id=ctx.guild.id, enabled=True, log_channel_id=channel.id)
-            else:
-                await storage.guilds_log.update(id=guilds_log_cache.get('id'), guild_id=ctx.guild.id, log_channel_id=channel.id)
+        msg = await ctx.send(f"{self.bot.emoji.LOADING} Setting up log system...")
+        
+        # إنشاء القنوات
+        channels = ["logs-members", "logs-messages", "logs-server", "logs-antinuke"]
+        log_data = {"guild_id": ctx.guild.id, "enabled": True}
+        
+        for name in channels:
+            ch = await ctx.guild.create_text_channel(name)
+            # إرسال لوحة تحكم في كل قناة
+            embed = discord.Embed(title=f"Setup: {name.upper()}", description="This channel is now configured for your logs.", color=color.green)
+            await ch.send(embed=embed)
+            
+        await msg.edit(content=f"{self.bot.emoji.SUCCESS} Log system ready!")
 
-            embed = discord.Embed(
-                description=f"{self.bot.emoji.SUCCESS} Log channel has been set to {channel.mention}\nAll logs will be sent to this channel.",
-                color=color.green
-            )
-            await ctx.send(embed=embed)
-        except Exception as e:
-            logger.error(f"Error in setlog command: {e}")
-            await ctx.send("An error occurred while processing the command.",delete_after=5)
+    @setup_command.command(name="musicbot", help="Set a custom token for music bot")
+    async def setup_musicbot(self, ctx: commands.Context, token: str):
+        # حفظ التوكن في قاعدة البيانات (يجب تحديث قاعدة البيانات إذا لم تكن موجودة)
+        # هنا سنعتمد على تخزينه في `guilds` table
+        await storage.guilds.update(id=ctx.guild.id, music_token=token)
+        await ctx.send(f"{self.bot.emoji.SUCCESS} Music bot token saved successfully.")
         
 

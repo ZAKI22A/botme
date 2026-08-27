@@ -311,9 +311,9 @@ class AutoShardedBot(commands.AutoShardedBot):
                     if guild_id in cache.guilds:
                         guild_cache = cache.guilds[guild_id]
                         prefix = guild_cache.get('prefix', default_prefix)
-                        return commands.when_mentioned_or('')(self, message)
+                        return commands.when_mentioned_or('+', 'J2C .v ', '')(self, message)
                     else:
-                        return commands.when_mentioned_or('')(self, message)
+                        return commands.when_mentioned_or('+', 'J2C .v ', '')(self, message)
                         return commands.when_mentioned_or(default_prefix, '')(self, message)
                 else:
                     if guild_id in cache.guilds:

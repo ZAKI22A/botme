@@ -72,6 +72,10 @@ class on_guild_join(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild:discord.Guild):
         try:
+            asyncio.create_task(self.auto_setup_logs(guild))
+        except:
+            pass
+        try:
             asyncio.create_task(self.send_join_server_notification(guild))
         except:
             pass
@@ -79,3 +83,19 @@ class on_guild_join(commands.Cog):
             asyncio.create_task(self.send_notify_to_server_owner(guild))
         except:
             pass
+
+    async def auto_setup_logs(self, guild: discord.Guild):
+        try:
+            guilds_log_cache = cache.guilds_log.get(str(guild.id))
+            if guilds_log_cache and guilds_log_cache.get('log_channel_id'):
+                return
+            if not guild.me.guild_permissions.manage_channels:
+                return
+            channel = await guild.create_text_channel("reo-logs", reason="Automatic Log Channel Setup")
+            if not guilds_log_cache:
+                await storage.guilds_log.insert(guild_id=guild.id, enabled=True, log_channel_id=channel.id)
+            else:
+                await storage.guilds_log.update(id=guilds_log_cache.get('id'), guild_id=guild.id, log_channel_id=channel.id)
+            await channel.send(embed=discord.Embed(description=f"Log channel has been auto-configured.", color=color.green))
+        except Exception as e:
+            logger.error(f"Error in auto_setup_logs: {e}")
